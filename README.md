@@ -1,3 +1,4 @@
+
 # JS OOPS: The Definitive Guide
 
 This guide will help you understand how OOPS work specifically while building your site/app using JavaScript.
@@ -322,11 +323,77 @@ How do we distinguish?
 - Writre a function with the first letter in uppercase to show that you'd be creating the class.
 - Write a function with the first letter with lowercase to denote it's a normal function.
 
-Now, once again check how we created the contructor in prototypal model. Now, look at the below given code:
+Now, once again check how we created the contructor in prototypal model and then check how can we implement the classcial model. Now, look at the below given code:
 
+    // Protypal Model
+    var ParentPrototype = {
+      constructor: function fn0(value) {
+        this._value = value;
+      },
+      get: function() {
+        return this._value;
+      }
+    }
+    
+    var child = Object.create(Parent);
+    child.constructor(10);
+    child.get(); //10
+    
+    
+    
+    // Classical Model
+    function Parent(value) {
+      this._value = value;
+    }
+    
+    Parent.prototype.get = function() {
+      return this._value;
+    }
+    
+    var child = new Parent(10);
+    child.get(); //10
 
+Let's add a subclass which is a bit complex:
+
+    // Classical Model
+    function Parent(value) {
+      this._value = value;
+    }
+    
+    Parent.prototype.get = function() {
+      return this._value;
+    }
+    
+    var child = new Parent(10);
+    child.get(); //10
+    
+    
+    // Adding a subclass
+    function GrandChild(value) {
+      // this is wrong as GrandChild doesn't have anything in prototype
+      // We fix it by assigning the prototype of Answer to GrandChild
+      Answer.call(this, value)
+    }
+    
+    GrandChild.prototype = Object.create(Answer.prototype);
+    
+    // This you can do it or skip it. Basically, this makes sure our constructor is pointing to the right thing
+    GrandChild.prototype.constructor = GrandChild;
+    
+    GrandChild.prototype.get = function() {
+      return Answer.prototype.get.call(this) + "modified";
+    }
+    
+    var finalChild = new GrandChild(20);
+    finalChild.get();
 
 ### Instanceof
+
+`instanceof` will let you know whether instance is extended from a class or not.
+
+`child instanceof Parent; // true`
+`child instanceof GrandChild; // false`
+`finalChild instanceof GrandChild; // true`
 
 ### Future Directions
 
