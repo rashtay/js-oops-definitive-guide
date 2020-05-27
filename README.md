@@ -372,10 +372,10 @@ Let's add a subclass which is a bit complex:
     function GrandChild(value) {
       // this is wrong as GrandChild doesn't have anything in prototype
       // We fix it by assigning the prototype of Answer to GrandChild
-      Answer.call(this, value)
+      Parent.call(this, value)
     }
     
-    GrandChild.prototype = Object.create(Answer.prototype);
+    GrandChild.prototype = Object.create(Parent.prototype);
     
     // This you can do it or skip it. Basically, this makes sure our constructor is pointing to the right thing
     GrandChild.prototype.constructor = GrandChild;
