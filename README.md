@@ -147,11 +147,6 @@ Above code would be a maintenance nightmare.
 So, how can we solve it? 
 Create a single object and let other objects extend from this object using `Object.create`.
 
-    function getVal() { 
-      return this.val; 
-    }
-    
-    // This would be a maintenance nightmare
     var parent = {
       get: function() { 
         return this.val; 
