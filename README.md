@@ -37,7 +37,7 @@ Objects are like dictionaries. They have a key value pair. The key is always a s
     // object.b will return undefined. You can assign undefined too
     console.log(obj2.b);
     
-    // Note: assigning undefined doesn't the property. We use delete keyword for deleting the property
+    // Note: assigning undefined doesn't delete the property. We use delete keyword for deleting the property
     delete obj2.a;
 
 ### Functions & Methods
