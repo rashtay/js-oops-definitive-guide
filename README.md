@@ -6,7 +6,7 @@ This guide will help you understand how OOPS work specifically while building yo
 ### Object Fundamentals
 
 JavaScript has two categories of data types:
-- Primitive
+- Truly Primitives
 	- undefined
 	- null
 	- boolean
@@ -14,9 +14,9 @@ JavaScript has two categories of data types:
 	- number
 	- object
 - Special Objects
-	- Arrays
-	- Functions
-	- RegExp
+	- Arrays - [1, 2]
+	- Functions - function() {}
+	- RegExp /qiyo/
 
 Objects are like dictionaries. They have a key value pair. The key is always a string. We can assign any datatype to this property.
 
@@ -28,13 +28,13 @@ Objects are like dictionaries. They have a key value pair. The key is always a s
 
 **Objects** are passed by reference
 
-    // obj1 and obj2 are connected
+    // obj1 and obj2 are connected. They have an arrow pointing to the same memory
     const obj1 = { a: 1 };
     const obj2 = obj1;
     obj2.a = 2;
     
     console.log(obj1);
-    // object.b will return undefined. You can assign undefined too
+    // object.b doesn't exist and will return undefined. You can assign undefined too
     console.log(obj2.b);
     
     // Note: assigning undefined doesn't delete the property. We use delete keyword for deleting the property
@@ -42,7 +42,7 @@ Objects are like dictionaries. They have a key value pair. The key is always a s
 
 ### Functions & Methods
 
-Functions are object in JavaScript. When you create a function, JavaScript creates an object with 3 properties:
+Functions are object in JavaScript. When you create a function (e.g function a() {}), JavaScript creates an object with 3 properties:
 - Function name (e.g "func1")
 - The length of the parameters (e.g 2)
 - Prototype (we'll discuss this later)
@@ -59,7 +59,7 @@ You can do everything with them you do with the normal object.
     // You can assign them to a variable
     var func2 = func1;
 
-`func2` is referencing to the same function. As we discussed earlier, we passed a reference. Hence, now you can call the function `func2` and expect the same results of `func1`
+`func2` is referencing to the same function (remember the arrow to the same memory?). As we discussed earlier, we passed a reference. Hence, now you can call the function `func2` and expect the same results of `func1`
 
 When you put a function inside of a object, it's called a method:
 
@@ -91,10 +91,11 @@ Now, the `this` keyword is JavaScripts biggest gotcha. It depends on the object 
     console.log(obj1.get());
     console.log(obj2.get());
     console.log(getVal());
+    console.log(getVal.call(obj1));  // Force the function to be bound by the object obj1
 
-So, you have to be really careful when you are using `this`. You should always code in strict mode. You can also use `call`, `bind` and `apply` to avoid the confusion.
+Javascript will set the `this` keyword to the object that you use. So, you have to be really careful when you are using `this`. You should always code in strict mode. You can also use `call`, `bind` and `apply` to avoid the confusion.
 
-    // Call, apply and bind
+    // Call, apply and bind comes from function.prototype
     function getName(surname) { 
       return this.name + ' ' + surname; 
     }
@@ -148,17 +149,18 @@ So, how can we solve it?
 Create a single object and let other objects extend from this object using `Object.create`.
 
     var parent = {
-      get: function() { 
+      get: function foo() { 
         return this.val; 
       },
       val: "Hello, World!"
     };
     
-    var child = Object.create(parent);
+    var child = Object.create(parent);  // [[Prototype]] get's set to parent
     child.val = "Hello";
+    console.log(child.get());  // => `this` is now set to child
     
     var grandChild = Object.create(child);
-    console.log(grandChild.get()); // "Hello" retreived from child's prototype
+    console.log(grandChild.get()); // "Hello" retreived from child's prototype. Javascript will first try to find get() in child. If it doesn't find it, it'll go up the prototype
 
 When you call `parent.get()`, JavaScript checks for the `get` function name (which as discussed earlier is a object with name, length and prototype). It checks for `this.value`. `this` points to parent and hence, we get the `value: 'Hello, world!'` from parent.
 
@@ -171,7 +173,7 @@ If any property isn't present in the existing object, JavaScript will start fetc
 
 `grandChild[[Prototype]].get -> Child[[Prototype]].get -> Parent.get -> "get"`
 
-This is the fundamental of JavaScript. This is how prototypal inheritance in JavaScript works. JavaScript doesn't have any other form of ineritance other than what I am showing you here.
+This is the fundamental of JavaScript inheritance. This is how prototypal inheritance in JavaScript works. JavaScript doesn't have any other form of ineritance other than what I am showing you here.
 
 Every object has a prototype. Objects have `object.prototype` and functions have `functions.prototype`. `Call`, `apply` and `bind` comes from this prototype.
 
@@ -225,9 +227,15 @@ The `child.get` should get the value from the child object. Instead, it get's th
 
 How do we solve it?
 
+	// Remember while calling `child.get()`, this is set to the child object and hence, .call(this) = .call(child)
     child.get = function() { 
         return parent.get.call(this) + " modified"; 
     };
+    
+    
+Usually, Parent can be considered as ParentPrototype and we can remove value from the object. value can then be retrieved from the child.
+
+Also, extend child and to some other instance and you can except their respective values with the "modified" keyword
 
 ### Classes & Instantiation
 
@@ -303,6 +311,7 @@ To solve this problem, we use constructors. Look at the below given example:
     console.log(child.get());
     console.log(grandChild1.get());
 
+You still are creating a new property but you are accessing it only using `.get()`
 
 ### The Classical Model
 
@@ -315,7 +324,7 @@ Whenever you create a funtion, you create 2 objects:
 - Prototype object which has constructor pointing to the same function. Weird? I know. Try to `console.log` a function and check it's constructor. It has a empty function pointing to the same function. Not every function is supposed to be used as a class. So, you might never make use of this constructor.
 
 How do we distinguish?
-- Writre a function with the first letter in uppercase to show that you'd be creating the class.
+- Write a function with the first letter in uppercase to show that you'd be creating the class.
 - Write a function with the first letter with lowercase to denote it's a normal function.
 
 Now, once again check how we created the contructor in prototypal model and then check how can we implement the classcial model. Now, look at the below given code:
@@ -365,12 +374,14 @@ Let's add a subclass which is a bit complex:
     
     // Adding a subclass
     function GrandChild(value) {
-      // this is wrong as GrandChild doesn't have anything in prototype
+      // this is wrong as GrandChild doesn't have anything in prototype. It doesn't have access to get of Answer
+      // Remember how we were extending to other prototypes before overriding functions?
       // We fix it by assigning the prototype of Answer to GrandChild
+      // This is just setting the value
       Parent.call(this, value)
     }
     
-    GrandChild.prototype = Object.create(Parent.prototype);
+    GrandChild.prototype = Object.create(Parent.prototype); // Grandchild.prototype = Parent.prototype. Note that grandchild and parent were objects and now they are function. Hence, we use their prototype 
     
     // This you can do it or skip it. Basically, this makes sure our constructor is pointing to the right thing
     GrandChild.prototype.constructor = GrandChild;
