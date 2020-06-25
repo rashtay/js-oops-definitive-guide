@@ -392,6 +392,34 @@ Let's add a subclass which is a bit complex:
     
     var finalChild = new GrandChild(20);
     finalChild.get();
+    
+    // Class based approach
+    class Parent {
+	  constructor(value) {
+	    this._value = value;
+	  }
+
+	  get() {
+	    return this._value;
+	  }
+	}
+
+	const childInstance = new Parent(42);
+	console.log(childInstance.get());
+
+	class Child extends Parent {
+	  constructor(value) {
+	    super(value);
+	  }
+
+	  get() {
+	    return this._value + " modified!";
+	  }
+	}
+
+	const grandChild = new Child(20);
+
+	console.log(grandChild.get());
 
 ### Instanceof
 
@@ -403,6 +431,6 @@ Let's add a subclass which is a bit complex:
 
 ### Future Directions
 
-### The Definitive Guide
-
-### Recommendations
+1. Use ESLint with strict mode
+2. Use ES6 classes
+3. You woould be using Classical model
