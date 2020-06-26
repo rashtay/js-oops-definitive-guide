@@ -255,14 +255,14 @@ Look at the below example:
     var child = Object.create(parent);
     child.val = "Child says hello";
     
-    
+    // This is a very small example. Imagine a lot is happening in parent.get() and we want the same code. Then it does make sense to use the same function
     child.get = function() { 
         return parent.get.call(this) + " modified"; 
     };
     
     // Children prototypes that do not extend further from it's parent class and sub class are known instances
     grandChild1 = Object.create(child);
-    child.val = "Grand Child says hello";
+    grandChild1.val = "Grand Child says hello";
     
     grandChild2 = Object.create(child);
     
@@ -374,9 +374,9 @@ Let's add a subclass which is a bit complex:
     
     // Adding a subclass
     function GrandChild(value) {
-      // this is wrong as GrandChild doesn't have anything in prototype. It doesn't have access to get of Answer
+      // this is wrong as GrandChild doesn't have anything in prototype. It doesn't have access to get of Parent
       // Remember how we were extending to other prototypes before overriding functions?
-      // We fix it by assigning the prototype of Answer to GrandChild
+      // We fix it by assigning the prototype of Parent to GrandChild
       // This is just setting the value
       Parent.call(this, value)
     }
@@ -387,39 +387,11 @@ Let's add a subclass which is a bit complex:
     GrandChild.prototype.constructor = GrandChild;
     
     GrandChild.prototype.get = function() {
-      return Answer.prototype.get.call(this) + "modified";
+      return Parent.prototype.get.call(this) + "modified";
     }
     
     var finalChild = new GrandChild(20);
     finalChild.get();
-    
-    // Class based approach
-    class Parent {
-	  constructor(value) {
-	    this._value = value;
-	  }
-
-	  get() {
-	    return this._value;
-	  }
-	}
-
-	const childInstance = new Parent(42);
-	console.log(childInstance.get());
-
-	class Child extends Parent {
-	  constructor(value) {
-	    super(value);
-	  }
-
-	  get() {
-	    return this._value + " modified!";
-	  }
-	}
-
-	const grandChild = new Child(20);
-
-	console.log(grandChild.get());
 
 ### Instanceof
 
@@ -428,6 +400,60 @@ Let's add a subclass which is a bit complex:
 `child instanceof Parent; // true`
 `child instanceof GrandChild; // false`
 `finalChild instanceof GrandChild; // true`
+
+### Classes
+
+	class Rectangle {
+	  constructor(height, width) {
+	    this.height = height;
+	    this.width = width;
+	  }
+	  // Getter
+	  get area() {
+	    return this.calcArea();
+	  }
+	  // Method
+	  calcArea() {
+	    return this.height * this.width;
+	  }
+	}
+
+	const square = new Rectangle(10, 10);
+
+	console.log(square.area); // 100
+	
+Now, since we have seen an example, the above code can be converted to:
+
+    class Parent {
+	  constructor(value) {
+	    this._value = value;
+	  }
+
+	  getValue() {
+	    return this._value;
+	  }
+	}
+
+	const childInstance = new Parent(42);
+	console.log(childInstance.getValue());
+
+	class Child extends Parent {
+	  constructor(value) {
+	    super(value);
+	  }
+
+	  getValue() {
+	    return super.getValue() + " modified!";
+	  }
+	}
+
+	const grandChild = new Child(20);
+
+	console.log(grandChild.getValue());
+
+	const grandChild2 = new Child(40);
+	console.log(grandChild2.getValue());
+
 
 ### Future Directions
 
